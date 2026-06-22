@@ -2,38 +2,62 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cryptogram">
+<meta name="theme-color" content="#0a0a1a">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0a1a' width='100' height='100' rx='20'/><text x='50' y='62' text-anchor='middle' font-size='40' fill='%2300ff88'>C</text></svg>">
 <title>Cryptogram - 暗号解読ゲーム</title>
 <style>
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
   font-family: 'Courier New', monospace;
   background: #0a0a1a;
   color: #e0e0e0;
-  min-height: 100vh;
+  height: 100%;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-top: env(safe-area-inset-top);
 }
 
 .container {
   max-width: 900px;
   width: 100%;
-  padding: 20px;
+  padding: 12px;
+  padding-left: calc(12px + env(safe-area-inset-left));
+  padding-right: calc(12px + env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 header {
   text-align: center;
-  padding: 30px 0 20px;
+  padding: 10px 0 8px;
+  flex-shrink: 0;
 }
 
 header h1 {
-  font-size: 2.2rem;
+  font-size: 1.4rem;
   color: #00ff88;
   text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
   letter-spacing: 4px;
@@ -41,23 +65,24 @@ header h1 {
 
 header p {
   color: #888;
-  margin-top: 8px;
-  font-size: 0.9rem;
+  margin-top: 4px;
+  font-size: 0.7rem;
 }
 
 .status-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  padding: 8px 12px;
   background: #111128;
   border: 1px solid #222244;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .lives {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   letter-spacing: 4px;
 }
 
@@ -68,53 +93,56 @@ header p {
 .stage-info {
   color: #00ff88;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
 }
 
 .score-info {
   color: #ffaa00;
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .puzzle-area {
   background: #0d0d24;
   border: 1px solid #1a1a3a;
-  border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 20px;
-  min-height: 200px;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 
 .puzzle-words {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px 28px;
+  gap: 10px 12px;
   justify-content: center;
-  line-height: 3.5;
+  line-height: 3;
 }
 
 .puzzle-char {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   cursor: default;
   position: relative;
 }
 
 .puzzle-char .number {
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   color: #666;
-  height: 18px;
+  height: 14px;
 }
 
 .puzzle-char .letter-box {
-  width: 32px;
-  height: 38px;
+  width: 24px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: bold;
   border-bottom: 2px solid #333;
   text-transform: uppercase;
@@ -143,7 +171,7 @@ header p {
 }
 
 .puzzle-char.space {
-  width: 16px;
+  width: 10px;
 }
 
 .puzzle-char.punctuation .letter-box {
@@ -153,35 +181,36 @@ header p {
 
 .word-group {
   display: inline-flex;
-  gap: 2px;
+  gap: 1px;
 }
 
 .hint-section {
   background: #111128;
   border: 1px solid #222244;
   border-radius: 8px;
-  padding: 15px 20px;
-  margin-bottom: 20px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .hint-section h3 {
   color: #ffaa00;
-  font-size: 0.85rem;
-  margin-bottom: 10px;
+  font-size: 0.65rem;
+  margin-bottom: 6px;
   letter-spacing: 2px;
 }
 
 .hint-pairs {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 6px;
 }
 
 .hint-pair {
   background: #1a1a3a;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
 
 .hint-pair .hint-num {
@@ -190,7 +219,7 @@ header p {
 
 .hint-pair .hint-arrow {
   color: #555;
-  margin: 0 6px;
+  margin: 0 4px;
 }
 
 .hint-pair .hint-letter {
@@ -202,46 +231,49 @@ header p {
 .input-section {
   background: #111128;
   border: 1px solid #222244;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
 }
 
 .input-prompt {
   color: #aaa;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  text-align: center;
 }
 
 .input-prompt .target-number {
   color: #00aaff;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .keyboard {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .key-btn {
-  width: 44px;
-  height: 44px;
+  aspect-ratio: 1;
   border: 1px solid #333;
   background: #1a1a2e;
   color: #e0e0e0;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   cursor: pointer;
   border-radius: 6px;
   text-transform: uppercase;
-  transition: all 0.15s;
+  transition: background 0.1s, border-color 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 38px;
 }
 
 .key-btn:hover {
@@ -250,7 +282,8 @@ header p {
 }
 
 .key-btn:active {
-  transform: scale(0.95);
+  background: #303060;
+  transform: scale(0.92);
 }
 
 .key-btn.used-correct {
@@ -287,6 +320,7 @@ header p {
   z-index: 100;
   justify-content: center;
   align-items: center;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 .overlay.active {
@@ -297,39 +331,41 @@ header p {
   background: #111128;
   border: 1px solid #222244;
   border-radius: 16px;
-  padding: 40px;
+  padding: 28px 24px;
   text-align: center;
   max-width: 500px;
   width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
 }
 
 .modal h2 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   margin-bottom: 10px;
 }
 
 .modal .quote-reveal {
   color: #aaa;
   font-style: italic;
-  margin: 15px 0;
+  margin: 12px 0;
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .modal .quote-author {
   color: #ffaa00;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+  margin-bottom: 15px;
+  font-size: 0.85rem;
 }
 
 .modal .stats {
   color: #888;
-  margin-bottom: 25px;
-  font-size: 0.9rem;
+  margin-bottom: 20px;
+  font-size: 0.8rem;
 }
 
 .modal-btn {
-  padding: 12px 36px;
+  padding: 14px 40px;
   border: 1px solid #00ff88;
   background: transparent;
   color: #00ff88;
@@ -337,11 +373,12 @@ header p {
   font-family: 'Courier New', monospace;
   cursor: pointer;
   border-radius: 8px;
-  transition: all 0.2s;
+  transition: background 0.15s, color 0.15s;
   margin: 0 8px;
+  min-height: 48px;
 }
 
-.modal-btn:hover {
+.modal-btn:active {
   background: #00ff88;
   color: #0a0a1a;
 }
@@ -351,7 +388,7 @@ header p {
   color: #888;
 }
 
-.modal-btn.secondary:hover {
+.modal-btn.secondary:active {
   background: #888;
   color: #0a0a1a;
 }
@@ -361,11 +398,12 @@ header p {
 
 .progress-bar {
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: #1a1a3a;
   border-radius: 2px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .progress-fill {
@@ -395,8 +433,8 @@ header p {
   text-align: right;
   color: #555;
   font-style: italic;
-  margin-top: 15px;
-  font-size: 0.85rem;
+  margin-top: 10px;
+  font-size: 0.75rem;
 }
 
 #start-screen .modal {
@@ -405,20 +443,119 @@ header p {
 
 #start-screen .modal h2 {
   color: #00ff88;
-  font-size: 2rem;
-  margin-bottom: 20px;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
 }
 
 #start-screen .rules {
   text-align: left;
   color: #aaa;
-  line-height: 1.8;
-  margin-bottom: 25px;
-  font-size: 0.9rem;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  font-size: 0.8rem;
 }
 
 #start-screen .rules li {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+@media (min-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+
+  header {
+    padding: 20px 0 15px;
+  }
+
+  header h1 {
+    font-size: 2.2rem;
+  }
+
+  header p {
+    font-size: 0.9rem;
+  }
+
+  .status-bar {
+    padding: 12px 20px;
+    margin-bottom: 15px;
+  }
+
+  .stage-info { font-size: 1.1rem; }
+  .score-info { font-size: 1rem; }
+  .lives { font-size: 1.4rem; }
+
+  .progress-bar {
+    height: 4px;
+    margin-bottom: 15px;
+  }
+
+  .puzzle-area {
+    padding: 24px;
+    margin-bottom: 15px;
+  }
+
+  .puzzle-words {
+    gap: 16px 24px;
+    line-height: 3.5;
+  }
+
+  .puzzle-char .number {
+    font-size: 0.75rem;
+    height: 18px;
+  }
+
+  .puzzle-char .letter-box {
+    width: 32px;
+    height: 38px;
+    font-size: 1.3rem;
+  }
+
+  .word-group { gap: 2px; }
+
+  .hint-section {
+    padding: 12px 20px;
+    margin-bottom: 15px;
+  }
+
+  .hint-section h3 { font-size: 0.85rem; }
+  .hint-pairs { gap: 10px; }
+  .hint-pair {
+    padding: 6px 14px;
+    font-size: 1rem;
+  }
+
+  .input-section {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .input-prompt { font-size: 0.95rem; }
+  .input-prompt .target-number { font-size: 1.2rem; }
+
+  .keyboard {
+    grid-template-columns: repeat(9, 1fr);
+    gap: 6px;
+    max-width: 500px;
+  }
+
+  .key-btn {
+    font-size: 1.1rem;
+    min-height: 44px;
+  }
+
+  .modal {
+    padding: 40px;
+  }
+
+  .modal h2 { font-size: 1.8rem; }
+  .modal .quote-reveal { font-size: 1rem; }
+
+  .author-line { font-size: 0.85rem; }
+
+  #start-screen .modal h2 { font-size: 2rem; }
+  #start-screen .rules { font-size: 0.9rem; }
 }
 </style>
 </head>
