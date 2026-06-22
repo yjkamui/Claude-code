@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cryptogram">
 <meta name="theme-color" content="#0a0a1a">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0a1a' width='100' height='100' rx='20'/><text x='50' y='62' text-anchor='middle' font-size='40' fill='%2300ff88'>C</text></svg>">
+<link rel="apple-touch-icon" href="assets/icon-60@3x.png">
+<link rel="manifest" href="manifest.json">
 <title>Cryptogram - 暗号解読ゲーム</title>
 <style>
 * {
@@ -881,6 +882,7 @@ class CryptogramGame {
   selectNumber(num) {
     this.selectedNumber = num;
     document.getElementById('target-number').textContent = num;
+    hapticLight();
     this.renderPuzzle();
   }
 
@@ -905,6 +907,7 @@ class CryptogramGame {
     if (letter === correctLetter) {
       this.revealedNumbers.add(this.selectedNumber);
       this.score += 10;
+      hapticMedium();
       this.render();
 
       document.querySelectorAll('.puzzle-char.revealed').forEach(el => {
@@ -913,6 +916,7 @@ class CryptogramGame {
       });
 
       if (this.checkWin()) {
+        hapticSuccess();
         setTimeout(() => this.stageClear(), 500);
       } else {
         this.selectFirstUnrevealed();
@@ -920,6 +924,7 @@ class CryptogramGame {
     } else {
       this.lives--;
       this.wrongGuesses.add(letter);
+      hapticError();
       this.renderStatus();
       this.renderKeyboard();
 
@@ -956,7 +961,38 @@ class CryptogramGame {
   }
 }
 
+let Haptics = null;
+let StatusBar = null;
+
+async function initCapacitor() {
+  try {
+    const cap = await import('https://unpkg.com/@anthropic-ai/empty@1/index.js').catch(() => null);
+    if (window.Capacitor) {
+      const { Haptics: H } = await import('@capacitor/haptics');
+      Haptics = H;
+      const { StatusBar: S, Style } = await import('@capacitor/status-bar');
+      StatusBar = S;
+      await StatusBar.setStyle({ style: Style.Dark });
+      await StatusBar.setBackgroundColor({ color: '#0a0a1a' });
+    }
+  } catch (e) {}
+}
+
+function hapticLight() {
+  if (Haptics) Haptics.impact({ style: 'light' }).catch(() => {});
+}
+function hapticMedium() {
+  if (Haptics) Haptics.impact({ style: 'medium' }).catch(() => {});
+}
+function hapticError() {
+  if (Haptics) Haptics.notification({ type: 'error' }).catch(() => {});
+}
+function hapticSuccess() {
+  if (Haptics) Haptics.notification({ type: 'success' }).catch(() => {});
+}
+
 const game = new CryptogramGame();
+initCapacitor();
 
 document.addEventListener('keydown', (e) => {
   if (document.querySelector('.overlay.active')) return;

@@ -1,0 +1,25 @@
+{
+  "name": "cryptogram",
+  "version": "1.0.0",
+  "description": "暗号解読ゲーム - 名言に隠された文字を解き明かせ",
+  "main": "www/index.html",
+  "scripts": {
+    "build": "node scripts/generate-icons.js",
+    "cap:sync": "npx cap sync ios",
+    "cap:open": "npx cap open ios"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.4.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "canvas": "^3.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
