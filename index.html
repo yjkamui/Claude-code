@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cryptogram - 暗号解読ゲーム</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Courier New', monospace;
+  background: #0a0a1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  max-width: 900px;
+  width: 100%;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  padding: 30px 0 20px;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  color: #00ff88;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+  letter-spacing: 4px;
+}
+
+header p {
+  color: #888;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.lives {
+  font-size: 1.4rem;
+  letter-spacing: 4px;
+}
+
+.lives .lost {
+  opacity: 0.2;
+}
+
+.stage-info {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.score-info {
+  color: #ffaa00;
+  font-size: 1rem;
+}
+
+.puzzle-area {
+  background: #0d0d24;
+  border: 1px solid #1a1a3a;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 20px;
+  min-height: 200px;
+}
+
+.puzzle-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 28px;
+  justify-content: center;
+  line-height: 3.5;
+}
+
+.puzzle-char {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+  position: relative;
+}
+
+.puzzle-char .number {
+  font-size: 0.75rem;
+  color: #666;
+  height: 18px;
+}
+
+.puzzle-char .letter-box {
+  width: 32px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-bottom: 2px solid #333;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.puzzle-char.revealed .letter-box {
+  color: #00ff88;
+  border-bottom-color: #00ff88;
+}
+
+.puzzle-char.hint .letter-box {
+  color: #ffaa00;
+  border-bottom-color: #ffaa00;
+}
+
+.puzzle-char.selected .letter-box {
+  border-bottom-color: #00aaff;
+  background: rgba(0, 170, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
+}
+
+.puzzle-char.wrong .letter-box {
+  animation: shake 0.4s ease;
+  border-bottom-color: #ff4444;
+}
+
+.puzzle-char.space {
+  width: 16px;
+}
+
+.puzzle-char.punctuation .letter-box {
+  border-bottom: none;
+  color: #888;
+}
+
+.word-group {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.hint-section {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.hint-section h3 {
+  color: #ffaa00;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+.hint-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hint-pair {
+  background: #1a1a3a;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.hint-pair .hint-num {
+  color: #888;
+}
+
+.hint-pair .hint-arrow {
+  color: #555;
+  margin: 0 6px;
+}
+
+.hint-pair .hint-letter {
+  color: #ffaa00;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.input-section {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.input-prompt {
+  color: #aaa;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.input-prompt .target-number {
+  color: #00aaff;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.key-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #333;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  text-transform: uppercase;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.key-btn:hover {
+  background: #252545;
+  border-color: #00aaff;
+}
+
+.key-btn:active {
+  transform: scale(0.95);
+}
+
+.key-btn.used-correct {
+  background: #003322;
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+.key-btn.used-wrong {
+  background: #220000;
+  border-color: #ff4444;
+  color: #ff4444;
+  opacity: 0.5;
+}
+
+.key-btn.used-hint {
+  background: #332200;
+  border-color: #ffaa00;
+  color: #ffaa00;
+}
+
+.key-btn:disabled {
+  cursor: not-allowed;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+
+.modal h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.modal .quote-reveal {
+  color: #aaa;
+  font-style: italic;
+  margin: 15px 0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.modal .quote-author {
+  color: #ffaa00;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.modal .stats {
+  color: #888;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+}
+
+.modal-btn {
+  padding: 12px 36px;
+  border: 1px solid #00ff88;
+  background: transparent;
+  color: #00ff88;
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  margin: 0 8px;
+}
+
+.modal-btn:hover {
+  background: #00ff88;
+  color: #0a0a1a;
+}
+
+.modal-btn.secondary {
+  border-color: #888;
+  color: #888;
+}
+
+.modal-btn.secondary:hover {
+  background: #888;
+  color: #0a0a1a;
+}
+
+.success-color { color: #00ff88; }
+.fail-color { color: #ff4444; }
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #1a1a3a;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #00ff88;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.puzzle-char.just-revealed .letter-box {
+  animation: pop 0.3s ease;
+}
+
+.author-line {
+  text-align: right;
+  color: #555;
+  font-style: italic;
+  margin-top: 15px;
+  font-size: 0.85rem;
+}
+
+#start-screen .modal {
+  max-width: 550px;
+}
+
+#start-screen .modal h2 {
+  color: #00ff88;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+#start-screen .rules {
+  text-align: left;
+  color: #aaa;
+  line-height: 1.8;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+}
+
+#start-screen .rules li {
+  margin-bottom: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>CRYPTOGRAM</h1>
+    <p>暗号解読ゲーム - 名言に隠された文字を解き明かせ</p>
+  </header>
+
+  <div class="status-bar">
+    <div class="stage-info">STAGE <span id="stage-num">1</span></div>
+    <div class="lives" id="lives"></div>
+    <div class="score-info">SCORE: <span id="score">0</span></div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <div class="puzzle-area" id="puzzle-area">
+    <div class="puzzle-words" id="puzzle-words"></div>
+    <div class="author-line" id="author-line"></div>
+  </div>
+
+  <div class="hint-section">
+    <h3>REVEALED HINTS</h3>
+    <div class="hint-pairs" id="hint-pairs"></div>
+  </div>
+
+  <div class="input-section">
+    <div class="input-prompt" id="input-prompt">
+      数字 <span class="target-number" id="target-number">?</span> に対応するアルファベットは？
+    </div>
+    <div class="keyboard" id="keyboard"></div>
+  </div>
+</div>
+
+<div class="overlay" id="start-screen">
+  <div class="modal">
+    <h2>CRYPTOGRAM</h2>
+    <p style="color:#888; margin-bottom:20px;">暗号解読ゲーム</p>
+    <ul class="rules">
+      <li>英語の名言が暗号化されています。各アルファベットは数字に置き換えられています。</li>
+      <li>ステージ開始時にいくつかの文字がヒントとして公開されます。</li>
+      <li>数字を選び、対応するアルファベットを当ててください。</li>
+      <li>ライフは各ステージ <strong style="color:#ff4444;">3つ</strong> です。0になるとゲームオーバー。</li>
+      <li>全ての文字を解読するとステージクリアです！</li>
+    </ul>
+    <button class="modal-btn" onclick="game.start()">START GAME</button>
+  </div>
+</div>
+
+<div class="overlay" id="stage-clear-screen">
+  <div class="modal">
+    <h2 class="success-color">STAGE CLEAR!</h2>
+    <div class="quote-reveal" id="clear-quote"></div>
+    <div class="quote-author" id="clear-author"></div>
+    <div class="stats" id="clear-stats"></div>
+    <button class="modal-btn" onclick="game.nextStage()">NEXT STAGE</button>
+  </div>
+</div>
+
+<div class="overlay" id="game-over-screen">
+  <div class="modal">
+    <h2 class="fail-color">GAME OVER</h2>
+    <div class="quote-reveal" id="over-quote"></div>
+    <div class="quote-author" id="over-author"></div>
+    <div class="stats" id="over-stats"></div>
+    <button class="modal-btn" onclick="game.restart()">RETRY</button>
+  </div>
+</div>
+
+<script>
+const QUOTES = [
+  { text: "The only way to do great work is to love what you do", author: "Steve Jobs" },
+  { text: "Be the change that you wish to see in the world", author: "Mahatma Gandhi" },
+  { text: "In the middle of difficulty lies opportunity", author: "Albert Einstein" },
+  { text: "Life is what happens when you are busy making other plans", author: "John Lennon" },
+  { text: "The future belongs to those who believe in the beauty of their dreams", author: "Eleanor Roosevelt" },
+  { text: "It does not matter how slowly you go as long as you do not stop", author: "Confucius" },
+  { text: "Imagination is more important than knowledge", author: "Albert Einstein" },
+  { text: "The best time to plant a tree was twenty years ago", author: "Chinese Proverb" },
+  { text: "Happiness is not something ready made it comes from your own actions", author: "Dalai Lama" },
+  { text: "You must be the change you wish to see in the world", author: "Mahatma Gandhi" },
+  { text: "Stay hungry stay foolish", author: "Steve Jobs" },
+  { text: "To be or not to be that is the question", author: "William Shakespeare" },
+  { text: "Knowledge is power", author: "Francis Bacon" },
+  { text: "I think therefore I am", author: "Rene Descartes" },
+  { text: "That which does not kill us makes us stronger", author: "Friedrich Nietzsche" },
+  { text: "The unexamined life is not worth living", author: "Socrates" },
+  { text: "Not all those who wander are lost", author: "J.R.R. Tolkien" },
+  { text: "We are what we repeatedly do", author: "Aristotle" },
+  { text: "The only thing we have to fear is fear itself", author: "Franklin D. Roosevelt" },
+  { text: "Do what you can with what you have where you are", author: "Theodore Roosevelt" },
+  { text: "Success is not final failure is not fatal", author: "Winston Churchill" },
+  { text: "Turn your wounds into wisdom", author: "Oprah Winfrey" },
+  { text: "Well done is better than well said", author: "Benjamin Franklin" },
+  { text: "What we achieve inwardly will change outer reality", author: "Plutarch" },
+  { text: "Believe you can and you are halfway there", author: "Theodore Roosevelt" },
+  { text: "Act as if what you do makes a difference", author: "William James" },
+  { text: "Quality is not an act it is a habit", author: "Aristotle" },
+  { text: "The mind is everything what you think you become", author: "Buddha" },
+  { text: "An unexamined life is not worth living", author: "Socrates" },
+  { text: "Dream big and dare to fail", author: "Norman Vaughan" },
+];
+
+class CryptogramGame {
+  constructor() {
+    this.stage = 1;
+    this.score = 0;
+    this.lives = 3;
+    this.usedQuoteIndices = [];
+    this.letterToNumber = {};
+    this.numberToLetter = {};
+    this.revealedNumbers = new Set();
+    this.hintNumbers = new Set();
+    this.selectedNumber = null;
+    this.uniqueLetters = [];
+    this.currentQuote = null;
+    this.wrongGuesses = new Set();
+
+    document.getElementById('start-screen').classList.add('active');
+  }
+
+  start() {
+    document.getElementById('start-screen').classList.remove('active');
+    this.stage = 1;
+    this.score = 0;
+    this.usedQuoteIndices = [];
+    this.setupStage();
+  }
+
+  restart() {
+    document.getElementById('game-over-screen').classList.remove('active');
+    this.stage = 1;
+    this.score = 0;
+    this.usedQuoteIndices = [];
+    this.setupStage();
+  }
+
+  nextStage() {
+    document.getElementById('stage-clear-screen').classList.remove('active');
+    this.stage++;
+    this.setupStage();
+  }
+
+  setupStage() {
+    this.lives = 3;
+    this.wrongGuesses = new Set();
+
+    let quoteIndex;
+    const available = QUOTES.map((_, i) => i).filter(i => !this.usedQuoteIndices.includes(i));
+    if (available.length === 0) {
+      this.usedQuoteIndices = [];
+      quoteIndex = Math.floor(Math.random() * QUOTES.length);
+    } else {
+      quoteIndex = available[Math.floor(Math.random() * available.length)];
+    }
+    this.usedQuoteIndices.push(quoteIndex);
+    this.currentQuote = QUOTES[quoteIndex];
+
+    this.createCipher();
+    this.selectHints();
+    this.render();
+    this.selectFirstUnrevealed();
+  }
+
+  createCipher() {
+    const text = this.currentQuote.text.toLowerCase();
+    const letters = [...new Set(text.split('').filter(c => /[a-z]/.test(c)))];
+    this.uniqueLetters = letters;
+
+    const numbers = [];
+    for (let i = 1; i <= 26; i++) numbers.push(i);
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+
+    this.letterToNumber = {};
+    this.numberToLetter = {};
+    letters.forEach((letter, idx) => {
+      this.letterToNumber[letter] = numbers[idx];
+      this.numberToLetter[numbers[idx]] = letter;
+    });
+
+    this.revealedNumbers = new Set();
+    this.hintNumbers = new Set();
+  }
+
+  selectHints() {
+    const count = this.uniqueLetters.length <= 8 ? 4 : 5;
+    const shuffled = [...this.uniqueLetters].sort(() => Math.random() - 0.5);
+    const hints = shuffled.slice(0, Math.min(count, shuffled.length));
+    hints.forEach(letter => {
+      const num = this.letterToNumber[letter];
+      this.revealedNumbers.add(num);
+      this.hintNumbers.add(num);
+    });
+  }
+
+  render() {
+    this.renderStatus();
+    this.renderPuzzle();
+    this.renderHints();
+    this.renderKeyboard();
+    this.renderProgress();
+  }
+
+  renderStatus() {
+    document.getElementById('stage-num').textContent = this.stage;
+    document.getElementById('score').textContent = this.score;
+    let heartsHtml = '';
+    for (let i = 0; i < 3; i++) {
+      heartsHtml += i < this.lives ? '❤️' : '<span class="lost">🖤</span>';
+    }
+    document.getElementById('lives').innerHTML = heartsHtml;
+  }
+
+  renderPuzzle() {
+    const text = this.currentQuote.text.toLowerCase();
+    const words = text.split(' ');
+    const container = document.getElementById('puzzle-words');
+    container.innerHTML = '';
+
+    words.forEach((word, wi) => {
+      const wordGroup = document.createElement('span');
+      wordGroup.className = 'word-group';
+
+      for (const char of word) {
+        const el = document.createElement('span');
+        el.className = 'puzzle-char';
+
+        if (/[a-z]/.test(char)) {
+          const num = this.letterToNumber[char];
+          const isRevealed = this.revealedNumbers.has(num);
+          const isHint = this.hintNumbers.has(num);
+          const isSelected = this.selectedNumber === num;
+
+          if (isRevealed && isHint) el.classList.add('hint');
+          else if (isRevealed) el.classList.add('revealed');
+          if (isSelected) el.classList.add('selected');
+
+          el.innerHTML = `
+            <span class="number">${num}</span>
+            <span class="letter-box">${isRevealed ? char : ''}</span>
+          `;
+
+          if (!isRevealed) {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', () => this.selectNumber(num));
+          }
+        } else {
+          el.classList.add('punctuation');
+          el.innerHTML = `<span class="number"></span><span class="letter-box">${char}</span>`;
+        }
+
+        wordGroup.appendChild(el);
+      }
+
+      container.appendChild(wordGroup);
+    });
+
+    document.getElementById('author-line').textContent = `— ${this.currentQuote.author}`;
+  }
+
+  renderHints() {
+    const container = document.getElementById('hint-pairs');
+    container.innerHTML = '';
+
+    const allRevealed = [...this.revealedNumbers].sort((a, b) => a - b);
+    allRevealed.forEach(num => {
+      const letter = this.numberToLetter[num];
+      const isHint = this.hintNumbers.has(num);
+      const pair = document.createElement('span');
+      pair.className = 'hint-pair';
+      pair.innerHTML = `<span class="hint-num">${num}</span><span class="hint-arrow">→</span><span class="hint-letter" style="color:${isHint ? '#ffaa00' : '#00ff88'}">${letter.toUpperCase()}</span>`;
+      container.appendChild(pair);
+    });
+  }
+
+  renderKeyboard() {
+    const container = document.getElementById('keyboard');
+    container.innerHTML = '';
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+
+    const usedLetters = new Set();
+    this.revealedNumbers.forEach(num => {
+      usedLetters.add(this.numberToLetter[num]);
+    });
+
+    for (const letter of letters) {
+      const btn = document.createElement('button');
+      btn.className = 'key-btn';
+      btn.textContent = letter;
+
+      if (usedLetters.has(letter) && this.hintNumbers.has(this.letterToNumber[letter])) {
+        btn.classList.add('used-hint');
+        btn.disabled = true;
+      } else if (usedLetters.has(letter)) {
+        btn.classList.add('used-correct');
+        btn.disabled = true;
+      } else if (this.wrongGuesses.has(letter)) {
+        btn.classList.add('used-wrong');
+        btn.disabled = true;
+      } else {
+        btn.addEventListener('click', () => this.guess(letter));
+      }
+
+      container.appendChild(btn);
+    }
+  }
+
+  renderProgress() {
+    const total = this.uniqueLetters.length;
+    const revealed = this.revealedNumbers.size;
+    const pct = (revealed / total) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  selectNumber(num) {
+    this.selectedNumber = num;
+    document.getElementById('target-number').textContent = num;
+    this.renderPuzzle();
+  }
+
+  selectFirstUnrevealed() {
+    const text = this.currentQuote.text.toLowerCase();
+    for (const char of text) {
+      if (/[a-z]/.test(char)) {
+        const num = this.letterToNumber[char];
+        if (!this.revealedNumbers.has(num)) {
+          this.selectNumber(num);
+          return;
+        }
+      }
+    }
+  }
+
+  guess(letter) {
+    if (this.selectedNumber === null) return;
+
+    const correctLetter = this.numberToLetter[this.selectedNumber];
+
+    if (letter === correctLetter) {
+      this.revealedNumbers.add(this.selectedNumber);
+      this.score += 10;
+      this.render();
+
+      document.querySelectorAll('.puzzle-char.revealed').forEach(el => {
+        el.classList.add('just-revealed');
+        setTimeout(() => el.classList.remove('just-revealed'), 300);
+      });
+
+      if (this.checkWin()) {
+        setTimeout(() => this.stageClear(), 500);
+      } else {
+        this.selectFirstUnrevealed();
+      }
+    } else {
+      this.lives--;
+      this.wrongGuesses.add(letter);
+      this.renderStatus();
+      this.renderKeyboard();
+
+      document.querySelectorAll('.puzzle-char.selected').forEach(el => {
+        el.classList.add('wrong');
+        setTimeout(() => el.classList.remove('wrong'), 400);
+      });
+
+      if (this.lives <= 0) {
+        setTimeout(() => this.gameOver(), 600);
+      }
+    }
+  }
+
+  checkWin() {
+    return this.uniqueLetters.every(l => this.revealedNumbers.has(this.letterToNumber[l]));
+  }
+
+  stageClear() {
+    const bonus = this.lives * 20;
+    this.score += bonus;
+
+    document.getElementById('clear-quote').textContent = `"${this.currentQuote.text}"`;
+    document.getElementById('clear-author').textContent = `— ${this.currentQuote.author}`;
+    document.getElementById('clear-stats').textContent = `残りライフボーナス: +${bonus}  |  合計スコア: ${this.score}`;
+    document.getElementById('stage-clear-screen').classList.add('active');
+  }
+
+  gameOver() {
+    document.getElementById('over-quote').textContent = `"${this.currentQuote.text}"`;
+    document.getElementById('over-author').textContent = `— ${this.currentQuote.author}`;
+    document.getElementById('over-stats').textContent = `ステージ ${this.stage} で終了  |  最終スコア: ${this.score}`;
+    document.getElementById('game-over-screen').classList.add('active');
+  }
+}
+
+const game = new CryptogramGame();
+
+document.addEventListener('keydown', (e) => {
+  if (document.querySelector('.overlay.active')) return;
+  const key = e.key.toLowerCase();
+  if (/^[a-z]$/.test(key)) {
+    const btn = document.querySelector(`.key-btn:not(:disabled)`);
+    if (btn) {
+      game.guess(key);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
