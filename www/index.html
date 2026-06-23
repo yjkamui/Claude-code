@@ -166,6 +166,11 @@ header p {
   box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
 }
 
+.puzzle-char.same-number .letter-box {
+  border-bottom-color: rgba(0, 170, 255, 0.4);
+  background: rgba(0, 170, 255, 0.05);
+}
+
 .puzzle-char.wrong .letter-box {
   animation: shake 0.4s ease;
   border-bottom-color: #ff4444;
@@ -602,10 +607,10 @@ header p {
     <p style="color:#888; margin-bottom:20px;">暗号解読ゲーム</p>
     <ul class="rules">
       <li>英語の名言が暗号化されています。各アルファベットは数字に置き換えられています。</li>
-      <li>ステージ開始時にいくつかの文字がヒントとして公開されます。</li>
-      <li>数字を選び、対応するアルファベットを当ててください。</li>
+      <li>ステージ開始時にいくつかの数字→文字の対応表がヒントとして表示されます。</li>
+      <li>マスをタップして選択し、正しいアルファベットを入力してください。1マスずつ埋めていきます。</li>
       <li>ライフは各ステージ <strong style="color:#ff4444;">3つ</strong> です。0になるとゲームオーバー。</li>
-      <li>全ての文字を解読するとステージクリアです！</li>
+      <li>全てのマスを埋めるとステージクリアです！</li>
     </ul>
     <button class="modal-btn" onclick="game.start()">START GAME</button>
   </div>
@@ -673,10 +678,10 @@ class CryptogramGame {
     this.usedQuoteIndices = [];
     this.letterToNumber = {};
     this.numberToLetter = {};
-    this.revealedNumbers = new Set();
     this.hintNumbers = new Set();
-    this.selectedNumber = null;
-    this.uniqueLetters = [];
+    this.filledCells = new Set();
+    this.selectedCell = null;
+    this.cells = [];
     this.currentQuote = null;
     this.wrongGuesses = new Set();
 
@@ -708,6 +713,8 @@ class CryptogramGame {
   setupStage() {
     this.lives = 3;
     this.wrongGuesses = new Set();
+    this.filledCells = new Set();
+    this.selectedCell = null;
 
     let quoteIndex;
     const available = QUOTES.map((_, i) => i).filter(i => !this.usedQuoteIndices.includes(i));
@@ -721,15 +728,15 @@ class CryptogramGame {
     this.currentQuote = QUOTES[quoteIndex];
 
     this.createCipher();
+    this.buildCells();
     this.selectHints();
     this.render();
-    this.selectFirstUnrevealed();
+    this.selectFirstUnfilled();
   }
 
   createCipher() {
     const text = this.currentQuote.text.toLowerCase();
     const letters = [...new Set(text.split('').filter(c => /[a-z]/.test(c)))];
-    this.uniqueLetters = letters;
 
     const numbers = [];
     for (let i = 1; i <= 26; i++) numbers.push(i);
@@ -745,19 +752,34 @@ class CryptogramGame {
       this.numberToLetter[numbers[idx]] = letter;
     });
 
-    this.revealedNumbers = new Set();
     this.hintNumbers = new Set();
   }
 
+  buildCells() {
+    const text = this.currentQuote.text.toLowerCase();
+    this.cells = [];
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if (/[a-z]/.test(char)) {
+        this.cells.push({ index: i, char, num: this.letterToNumber[char], isLetter: true });
+      } else {
+        this.cells.push({ index: i, char, num: null, isLetter: false });
+      }
+    }
+  }
+
   selectHints() {
-    const count = this.uniqueLetters.length <= 8 ? 4 : 5;
-    const shuffled = [...this.uniqueLetters].sort(() => Math.random() - 0.5);
+    const uniqueLetters = [...new Set(this.cells.filter(c => c.isLetter).map(c => c.char))];
+    const count = uniqueLetters.length <= 8 ? 4 : 5;
+    const shuffled = [...uniqueLetters].sort(() => Math.random() - 0.5);
     const hints = shuffled.slice(0, Math.min(count, shuffled.length));
     hints.forEach(letter => {
-      const num = this.letterToNumber[letter];
-      this.revealedNumbers.add(num);
-      this.hintNumbers.add(num);
+      this.hintNumbers.add(this.letterToNumber[letter]);
     });
+  }
+
+  get totalLetterCells() {
+    return this.cells.filter(c => c.isLetter).length;
   }
 
   render() {
@@ -784,32 +806,36 @@ class CryptogramGame {
     const container = document.getElementById('puzzle-words');
     container.innerHTML = '';
 
-    words.forEach((word, wi) => {
+    let globalIdx = 0;
+    words.forEach((word) => {
       const wordGroup = document.createElement('span');
       wordGroup.className = 'word-group';
 
       for (const char of word) {
+        const cell = this.cells[globalIdx];
         const el = document.createElement('span');
         el.className = 'puzzle-char';
 
-        if (/[a-z]/.test(char)) {
-          const num = this.letterToNumber[char];
-          const isRevealed = this.revealedNumbers.has(num);
-          const isHint = this.hintNumbers.has(num);
-          const isSelected = this.selectedNumber === num;
+        if (cell.isLetter) {
+          const isFilled = this.filledCells.has(globalIdx);
+          const isSelected = this.selectedCell === globalIdx;
+          const isSameNumber = this.selectedCell !== null
+            && this.cells[this.selectedCell]
+            && this.cells[this.selectedCell].num === cell.num;
 
-          if (isRevealed && isHint) el.classList.add('hint');
-          else if (isRevealed) el.classList.add('revealed');
+          if (isFilled) el.classList.add('revealed');
           if (isSelected) el.classList.add('selected');
+          else if (isSameNumber && !isFilled) el.classList.add('same-number');
 
           el.innerHTML = `
-            <span class="number">${num}</span>
-            <span class="letter-box">${isRevealed ? char : ''}</span>
+            <span class="number">${cell.num}</span>
+            <span class="letter-box">${isFilled ? cell.char : ''}</span>
           `;
 
-          if (!isRevealed) {
+          if (!isFilled) {
             el.style.cursor = 'pointer';
-            el.addEventListener('click', () => this.selectNumber(num));
+            const idx = globalIdx;
+            el.addEventListener('click', () => this.selectCellAt(idx));
           }
         } else {
           el.classList.add('punctuation');
@@ -817,9 +843,11 @@ class CryptogramGame {
         }
 
         wordGroup.appendChild(el);
+        globalIdx++;
       }
 
       container.appendChild(wordGroup);
+      globalIdx++;
     });
 
     document.getElementById('author-line').textContent = `— ${this.currentQuote.author}`;
@@ -829,8 +857,13 @@ class CryptogramGame {
     const container = document.getElementById('hint-pairs');
     container.innerHTML = '';
 
-    const allRevealed = [...this.revealedNumbers].sort((a, b) => a - b);
-    allRevealed.forEach(num => {
+    const knownNumbers = new Set([...this.hintNumbers]);
+    this.filledCells.forEach(idx => {
+      knownNumbers.add(this.cells[idx].num);
+    });
+
+    const sorted = [...knownNumbers].sort((a, b) => a - b);
+    sorted.forEach(num => {
       const letter = this.numberToLetter[num];
       const isHint = this.hintNumbers.has(num);
       const pair = document.createElement('span');
@@ -845,23 +878,12 @@ class CryptogramGame {
     container.innerHTML = '';
     const letters = 'abcdefghijklmnopqrstuvwxyz';
 
-    const usedLetters = new Set();
-    this.revealedNumbers.forEach(num => {
-      usedLetters.add(this.numberToLetter[num]);
-    });
-
     for (const letter of letters) {
       const btn = document.createElement('button');
       btn.className = 'key-btn';
       btn.textContent = letter;
 
-      if (usedLetters.has(letter) && this.hintNumbers.has(this.letterToNumber[letter])) {
-        btn.classList.add('used-hint');
-        btn.disabled = true;
-      } else if (usedLetters.has(letter)) {
-        btn.classList.add('used-correct');
-        btn.disabled = true;
-      } else if (this.wrongGuesses.has(letter)) {
+      if (this.wrongGuesses.has(letter)) {
         btn.classList.add('used-wrong');
         btn.disabled = true;
       } else {
@@ -873,53 +895,70 @@ class CryptogramGame {
   }
 
   renderProgress() {
-    const total = this.uniqueLetters.length;
-    const revealed = this.revealedNumbers.size;
-    const pct = (revealed / total) * 100;
+    const total = this.totalLetterCells;
+    const filled = this.filledCells.size;
+    const pct = (filled / total) * 100;
     document.getElementById('progress-fill').style.width = pct + '%';
   }
 
-  selectNumber(num) {
-    this.selectedNumber = num;
-    document.getElementById('target-number').textContent = num;
+  selectCellAt(idx) {
+    this.selectedCell = idx;
+    const cell = this.cells[idx];
+    document.getElementById('target-number').textContent = cell.num;
     hapticLight();
     this.renderPuzzle();
   }
 
-  selectFirstUnrevealed() {
-    const text = this.currentQuote.text.toLowerCase();
-    for (const char of text) {
-      if (/[a-z]/.test(char)) {
-        const num = this.letterToNumber[char];
-        if (!this.revealedNumbers.has(num)) {
-          this.selectNumber(num);
-          return;
-        }
+  selectFirstUnfilled() {
+    for (let i = 0; i < this.cells.length; i++) {
+      if (this.cells[i].isLetter && !this.filledCells.has(i)) {
+        this.selectCellAt(i);
+        return;
+      }
+    }
+  }
+
+  selectNextUnfilled() {
+    const start = this.selectedCell !== null ? this.selectedCell + 1 : 0;
+    for (let i = start; i < this.cells.length; i++) {
+      if (this.cells[i].isLetter && !this.filledCells.has(i)) {
+        this.selectCellAt(i);
+        return;
+      }
+    }
+    for (let i = 0; i < start; i++) {
+      if (this.cells[i].isLetter && !this.filledCells.has(i)) {
+        this.selectCellAt(i);
+        return;
       }
     }
   }
 
   guess(letter) {
-    if (this.selectedNumber === null) return;
+    if (this.selectedCell === null) return;
+    const cell = this.cells[this.selectedCell];
+    if (!cell || !cell.isLetter) return;
 
-    const correctLetter = this.numberToLetter[this.selectedNumber];
-
-    if (letter === correctLetter) {
-      this.revealedNumbers.add(this.selectedNumber);
+    if (letter === cell.char) {
+      this.filledCells.add(this.selectedCell);
       this.score += 10;
       hapticMedium();
       this.render();
 
-      document.querySelectorAll('.puzzle-char.revealed').forEach(el => {
-        el.classList.add('just-revealed');
-        setTimeout(() => el.classList.remove('just-revealed'), 300);
+      const selIdx = this.selectedCell;
+      const el = document.querySelector(`.puzzle-char.revealed[data-filled-just]`);
+      document.querySelectorAll('.puzzle-char').forEach((el, i) => {
+        if (el.classList.contains('revealed')) {
+          el.classList.add('just-revealed');
+          setTimeout(() => el.classList.remove('just-revealed'), 300);
+        }
       });
 
       if (this.checkWin()) {
         hapticSuccess();
         setTimeout(() => this.stageClear(), 500);
       } else {
-        this.selectFirstUnrevealed();
+        this.selectNextUnfilled();
       }
     } else {
       this.lives--;
@@ -940,7 +979,7 @@ class CryptogramGame {
   }
 
   checkWin() {
-    return this.uniqueLetters.every(l => this.revealedNumbers.has(this.letterToNumber[l]));
+    return this.cells.every(c => !c.isLetter || this.filledCells.has(c.index));
   }
 
   stageClear() {
@@ -966,7 +1005,6 @@ let StatusBar = null;
 
 async function initCapacitor() {
   try {
-    const cap = await import('https://unpkg.com/@anthropic-ai/empty@1/index.js').catch(() => null);
     if (window.Capacitor) {
       const { Haptics: H } = await import('@capacitor/haptics');
       Haptics = H;
@@ -998,10 +1036,7 @@ document.addEventListener('keydown', (e) => {
   if (document.querySelector('.overlay.active')) return;
   const key = e.key.toLowerCase();
   if (/^[a-z]$/.test(key)) {
-    const btn = document.querySelector(`.key-btn:not(:disabled)`);
-    if (btn) {
-      game.guess(key);
-    }
+    game.guess(key);
   }
 });
 </script>
