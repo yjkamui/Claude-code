@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect fill="#0a0a1a" width="1024" height="1024" rx="180"/>
+  <text x="512" y="420" text-anchor="middle" font-family="Courier New, monospace"
+        font-size="200" font-weight="bold" fill="#00ff88" letter-spacing="8">C R Y</text>
+  <text x="512" y="620" text-anchor="middle" font-family="Courier New, monospace"
+        font-size="200" font-weight="bold" fill="#00ff88" letter-spacing="8">P T O</text>
+  <text x="512" y="780" text-anchor="middle" font-family="Courier New, monospace"
+        font-size="80" fill="#ffaa00">DECODE</text>
+  <g opacity="0.3">
+    <text x="180" y="200" font-family="Courier New" font-size="60" fill="#00ff88">7</text>
+    <text x="820" y="200" font-family="Courier New" font-size="60" fill="#00ff88">3</text>
+    <text x="140" y="850" font-family="Courier New" font-size="60" fill="#00ff88">15</text>
+    <text x="850" y="850" font-family="Courier New" font-size="60" fill="#00ff88">9</text>
+  </g>
+</svg>

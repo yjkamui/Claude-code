@@ -1,0 +1,313 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Courier New', monospace;
+  background: #0a0a1a;
+  color: #e0e0e0;
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  padding-top: env(safe-area-inset-top);
+}
+
+.container {
+  max-width: 900px;
+  width: 100%;
+  padding: 12px;
+  padding-left: calc(12px + env(safe-area-inset-left));
+  padding-right: calc(12px + env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+header {
+  text-align: center;
+  padding: 10px 0 8px;
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: 1.4rem;
+  color: #00ff88;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+  letter-spacing: 4px;
+}
+
+header p {
+  color: #888;
+  margin-top: 4px;
+  font-size: 0.7rem;
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.lives { font-size: 1.2rem; letter-spacing: 4px; }
+.lives .lost { opacity: 0.2; }
+.stage-info { color: #00ff88; font-weight: bold; font-size: 0.85rem; }
+.score-info { color: #ffaa00; font-size: 0.85rem; }
+
+/* Progress */
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: #1a1a3a;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #00ff88;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* Puzzle */
+.puzzle-area {
+  background: #0d0d24;
+  border: 1px solid #1a1a3a;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+.puzzle-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  justify-content: center;
+  line-height: 3;
+}
+
+.puzzle-char {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+  position: relative;
+}
+
+.puzzle-char .number { font-size: 0.6rem; color: #666; height: 14px; }
+
+.puzzle-char .letter-box {
+  width: 24px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
+  border-bottom: 2px solid #333;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.puzzle-char.revealed .letter-box { color: #00ff88; border-bottom-color: #00ff88; }
+.puzzle-char.selected .letter-box {
+  border-bottom-color: #00aaff;
+  background: rgba(0, 170, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
+}
+.puzzle-char.same-number .letter-box {
+  border-bottom-color: rgba(0, 170, 255, 0.4);
+  background: rgba(0, 170, 255, 0.05);
+}
+.puzzle-char.punctuation .letter-box { border-bottom: none; color: #888; }
+
+.word-group { display: inline-flex; gap: 1px; }
+
+.author-line {
+  text-align: right;
+  color: #555;
+  font-style: italic;
+  margin-top: 10px;
+  font-size: 0.75rem;
+}
+
+/* Hints */
+.hint-section {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.hint-section h3 { color: #ffaa00; font-size: 0.65rem; margin-bottom: 6px; letter-spacing: 2px; }
+.hint-pairs { display: flex; flex-wrap: wrap; gap: 6px; }
+.hint-pair { background: #1a1a3a; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
+.hint-pair .hint-num { color: #888; }
+.hint-pair .hint-arrow { color: #555; margin: 0 4px; }
+.hint-pair .hint-letter { font-weight: bold; text-transform: uppercase; }
+
+/* Keyboard */
+.input-section {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 8px 8px 0 0;
+  padding: 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+
+.input-prompt { color: #aaa; margin-bottom: 8px; font-size: 0.8rem; text-align: center; }
+.input-prompt .target-number { color: #00aaff; font-weight: bold; font-size: 1.1rem; }
+
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.key-btn {
+  aspect-ratio: 1;
+  border: 1px solid #333;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  text-transform: uppercase;
+  transition: background 0.1s, border-color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+}
+
+.key-btn:active { background: #303060; transform: scale(0.92); }
+.key-btn.used-wrong { background: #220000; border-color: #ff4444; color: #ff4444; opacity: 0.5; }
+.key-btn:disabled { cursor: not-allowed; }
+
+/* Modals */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.overlay.active { display: flex; }
+
+.modal {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+}
+
+.modal h2 { font-size: 1.5rem; margin-bottom: 10px; }
+.modal .quote-reveal { color: #aaa; font-style: italic; margin: 12px 0; line-height: 1.6; font-size: 0.9rem; }
+.modal .quote-author { color: #ffaa00; margin-bottom: 15px; font-size: 0.85rem; }
+.modal .stats { color: #888; margin-bottom: 20px; font-size: 0.8rem; }
+
+.modal-btn {
+  padding: 14px 40px;
+  border: 1px solid #00ff88;
+  background: transparent;
+  color: #00ff88;
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  min-height: 48px;
+}
+
+.modal-btn:active { background: #00ff88; color: #0a0a1a; }
+
+.success-color { color: #00ff88; }
+.fail-color { color: #ff4444; }
+
+.rules {
+  text-align: left;
+  color: #aaa;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  font-size: 0.8rem;
+}
+
+.rules li { margin-bottom: 4px; }
+
+/* Desktop */
+@media (min-width: 600px) {
+  .container { padding: 20px; }
+  header { padding: 20px 0 15px; }
+  header h1 { font-size: 2.2rem; }
+  header p { font-size: 0.9rem; }
+  .status-bar { padding: 12px 20px; margin-bottom: 15px; }
+  .stage-info { font-size: 1.1rem; }
+  .score-info { font-size: 1rem; }
+  .lives { font-size: 1.4rem; }
+  .progress-bar { height: 4px; margin-bottom: 15px; }
+  .puzzle-area { padding: 24px; margin-bottom: 15px; }
+  .puzzle-words { gap: 16px 24px; line-height: 3.5; }
+  .puzzle-char .number { font-size: 0.75rem; height: 18px; }
+  .puzzle-char .letter-box { width: 32px; height: 38px; font-size: 1.3rem; }
+  .word-group { gap: 2px; }
+  .hint-section { padding: 12px 20px; margin-bottom: 15px; }
+  .hint-section h3 { font-size: 0.85rem; }
+  .hint-pairs { gap: 10px; }
+  .hint-pair { padding: 6px 14px; font-size: 1rem; }
+  .input-section { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; }
+  .input-prompt { font-size: 0.95rem; }
+  .input-prompt .target-number { font-size: 1.2rem; }
+  .keyboard { grid-template-columns: repeat(9, 1fr); gap: 6px; max-width: 500px; }
+  .key-btn { font-size: 1.1rem; min-height: 44px; }
+  .modal { padding: 40px; }
+  .modal h2 { font-size: 1.8rem; }
+  .modal .quote-reveal { font-size: 1rem; }
+  .author-line { font-size: 0.85rem; }
+  .rules { font-size: 0.9rem; }
+}
