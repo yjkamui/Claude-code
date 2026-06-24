@@ -106,6 +106,9 @@ export function useGame() {
     const uniqueLetters = createCipher(text)
     buildCells(text)
     selectHints(uniqueLetters)
+    cells.value.forEach(c => {
+      if (c.isLetter && hintNumbers.has(c.num)) filledCells.add(c.index)
+    })
     selectFirstUnfilled()
     screen.value = 'playing'
   }
