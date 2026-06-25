@@ -17,7 +17,11 @@
       @select-cell="onSelectCell"
     />
 
-    <HintSection :mappings="game.knownMappings.value" />
+    <HintSection
+      :mappings="game.knownMappings.value"
+      :can-use-extra-hint="game.canUseExtraHint.value"
+      @use-extra-hint="onExtraHint"
+    />
 
     <GameKeyboard
       :target-num="game.selectedNum.value"
@@ -83,6 +87,11 @@ onMounted(() => { initHaptics() })
 function onSelectCell(idx) {
   haptics.light()
   game.selectCellAt(idx)
+}
+
+function onExtraHint() {
+  haptics.medium()
+  game.useExtraHint()
 }
 
 function onGuess(letter) {

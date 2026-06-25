@@ -214,6 +214,41 @@ export function useGame() {
     }
   }
 
+  const canUseExtraHint = computed(() => {
+    if (lives.value <= 1) return false
+    const knownNums = new Set([...hintNumbers])
+    filledCells.forEach(idx => {
+      const cell = cells.value[idx]
+      if (cell) knownNums.add(cell.num)
+    })
+    return cells.value.some(c => c.isLetter && !knownNums.has(c.num))
+  })
+
+  function useExtraHint() {
+    if (!canUseExtraHint.value) return false
+    const knownNums = new Set([...hintNumbers])
+    filledCells.forEach(idx => {
+      const cell = cells.value[idx]
+      if (cell) knownNums.add(cell.num)
+    })
+    const unknownNums = [...new Set(
+      cells.value.filter(c => c.isLetter && !knownNums.has(c.num)).map(c => c.num)
+    )]
+    if (unknownNums.length === 0) return false
+    const newNum = unknownNums[Math.floor(Math.random() * unknownNums.length)]
+    hintNumbers.add(newNum)
+    cells.value.forEach(c => {
+      if (c.isLetter && c.num === newNum) filledCells.add(c.index)
+    })
+    lives.value--
+    if (checkWin()) {
+      const bonus = lives.value * 20
+      score.value += bonus
+      screen.value = 'clear'
+    }
+    return true
+  }
+
   function getWords() {
     if (!currentQuote.value) return []
     const text = currentQuote.value.text.toLowerCase()
@@ -238,7 +273,8 @@ export function useGame() {
     currentQuote, cells, filledCells, hintNumbers,
     selectedCell, selectedNum, wrongGuesses,
     totalLetterCells, filledCount, progress, knownMappings, letterStates,
+    canUseExtraHint,
     start, restart, nextStage,
-    selectCellAt, guess, getWords,
+    selectCellAt, guess, useExtraHint, getWords,
   }
 }

@@ -1,6 +1,15 @@
 <template>
   <div class="hint-section">
-    <h3>REVEALED HINTS</h3>
+    <div class="hint-header">
+      <h3>REVEALED HINTS</h3>
+      <button
+        class="extra-hint-btn"
+        :disabled="!canUseExtraHint"
+        @click="$emit('use-extra-hint')"
+      >
+        + HINT (LIFE -1)
+      </button>
+    </div>
     <div class="hint-pairs">
       <span v-for="m in mappings" :key="m.num" class="hint-pair">
         <span class="hint-num">{{ m.num }}</span>
@@ -14,5 +23,6 @@
 </template>
 
 <script setup>
-defineProps({ mappings: Array })
+defineProps({ mappings: Array, canUseExtraHint: Boolean })
+defineEmits(['use-extra-hint'])
 </script>

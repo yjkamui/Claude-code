@@ -123,7 +123,7 @@ header p {
   position: relative;
 }
 
-.puzzle-char .number { font-size: 0.6rem; color: #666; height: 14px; }
+.puzzle-char .number { font-size: 0.6rem; color: #99aacc; height: 14px; }
 
 .puzzle-char .letter-box {
   width: 24px;
@@ -170,7 +170,26 @@ header p {
   flex-shrink: 0;
 }
 
-.hint-section h3 { color: #ffaa00; font-size: 0.65rem; margin-bottom: 6px; letter-spacing: 2px; }
+.hint-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.hint-section h3 { color: #ffaa00; font-size: 0.65rem; letter-spacing: 2px; }
+
+.extra-hint-btn {
+  padding: 3px 10px;
+  border: 1px solid #ffaa00;
+  background: transparent;
+  color: #ffaa00;
+  font-size: 0.65rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  transition: background 0.15s, color 0.15s;
+  min-height: 28px;
+}
+.extra-hint-btn:active { background: #ffaa00; color: #0a0a1a; }
+.extra-hint-btn:disabled { border-color: #444; color: #444; cursor: not-allowed; }
+
 .hint-pairs { display: flex; flex-wrap: wrap; gap: 6px; }
 .hint-pair { background: #1a1a3a; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
 .hint-pair .hint-num { color: #888; }
@@ -300,6 +319,7 @@ header p {
   .word-group { gap: 2px; }
   .hint-section { padding: 12px 20px; margin-bottom: 15px; }
   .hint-section h3 { font-size: 0.85rem; }
+  .extra-hint-btn { font-size: 0.75rem; padding: 4px 14px; min-height: 32px; }
   .hint-pairs { gap: 10px; }
   .hint-pair { padding: 6px 14px; font-size: 1rem; }
   .input-section { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; }
