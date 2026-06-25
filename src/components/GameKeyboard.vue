@@ -8,8 +8,12 @@
         v-for="letter in letters"
         :key="letter"
         class="key-btn"
-        :class="{ 'used-wrong': wrongGuesses.has(letter) }"
-        :disabled="wrongGuesses.has(letter)"
+        :class="{
+          'used-wrong': letterStates[letter] === 'wrong',
+          'key-known': letterStates[letter] === 'known',
+          'key-complete': letterStates[letter] === 'complete',
+        }"
+        :disabled="letterStates[letter] === 'wrong' || letterStates[letter] === 'complete'"
         @click="$emit('guess', letter)"
       >
         {{ letter }}
@@ -19,7 +23,7 @@
 </template>
 
 <script setup>
-defineProps({ targetNum: Number, wrongGuesses: Set })
+defineProps({ targetNum: Number, wrongGuesses: Set, letterStates: Object })
 defineEmits(['guess'])
 
 const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')

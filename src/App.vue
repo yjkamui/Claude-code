@@ -22,6 +22,7 @@
     <GameKeyboard
       :target-num="game.selectedNum.value"
       :wrong-guesses="game.wrongGuesses"
+      :letter-states="game.letterStates.value"
       @guess="onGuess"
     />
   </div>

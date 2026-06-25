@@ -218,6 +218,8 @@ header p {
 
 .key-btn:active { background: #303060; transform: scale(0.92); }
 .key-btn.used-wrong { background: #220000; border-color: #ff4444; color: #ff4444; opacity: 0.5; }
+.key-btn.key-known { border-color: #00ff88; color: #00ff88; }
+.key-btn.key-complete { background: #1a1a2e; border-color: #333; color: #444; opacity: 0.4; }
 .key-btn:disabled { cursor: not-allowed; }
 
 /* Modals */

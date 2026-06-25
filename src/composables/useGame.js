@@ -45,6 +45,30 @@ export function useGame() {
     }))
   })
 
+  const letterStates = computed(() => {
+    const states = {}
+    const letterCounts = {}
+    const letterFilled = {}
+    cells.value.forEach(c => {
+      if (!c.isLetter) return
+      if (!letterCounts[c.char]) { letterCounts[c.char] = 0; letterFilled[c.char] = 0 }
+      letterCounts[c.char]++
+      if (filledCells.has(c.index)) letterFilled[c.char]++
+    })
+    for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
+      if (letterFilled[letter] > 0 && letterFilled[letter] >= letterCounts[letter]) {
+        states[letter] = 'complete'
+      } else if (letterFilled[letter] > 0) {
+        states[letter] = 'known'
+      } else if (wrongGuesses.has(letter)) {
+        states[letter] = 'wrong'
+      } else {
+        states[letter] = 'default'
+      }
+    }
+    return states
+  })
+
   function createCipher(text) {
     const letters = [...new Set(text.split('').filter(c => /[a-z]/.test(c)))]
     const numbers = Array.from({ length: 26 }, (_, i) => i + 1)
@@ -213,7 +237,7 @@ export function useGame() {
     stage, score, lives, screen,
     currentQuote, cells, filledCells, hintNumbers,
     selectedCell, selectedNum, wrongGuesses,
-    totalLetterCells, filledCount, progress, knownMappings,
+    totalLetterCells, filledCount, progress, knownMappings, letterStates,
     start, restart, nextStage,
     selectCellAt, guess, getWords,
   }
