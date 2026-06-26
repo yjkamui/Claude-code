@@ -7,7 +7,7 @@
         :disabled="!canUseExtraHint"
         @click="$emit('use-extra-hint')"
       >
-        + HINT (LIFE -1)
+        + HINT (-{{ hintCost }}pt)
       </button>
     </div>
     <div class="hint-pairs">
@@ -23,6 +23,6 @@
 </template>
 
 <script setup>
-defineProps({ mappings: Array, canUseExtraHint: Boolean })
+defineProps({ mappings: Array, canUseExtraHint: Boolean, hintCost: Number })
 defineEmits(['use-extra-hint'])
 </script>

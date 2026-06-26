@@ -20,6 +20,7 @@
     <HintSection
       :mappings="game.knownMappings.value"
       :can-use-extra-hint="game.canUseExtraHint.value"
+      :hint-cost="game.HINT_COST"
       @use-extra-hint="onExtraHint"
     />
 

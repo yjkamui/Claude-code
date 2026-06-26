@@ -214,8 +214,10 @@ export function useGame() {
     }
   }
 
+  const HINT_COST = 50
+
   const canUseExtraHint = computed(() => {
-    if (lives.value <= 1) return false
+    if (score.value < HINT_COST) return false
     const knownNums = new Set([...hintNumbers])
     filledCells.forEach(idx => {
       const cell = cells.value[idx]
@@ -240,7 +242,7 @@ export function useGame() {
     cells.value.forEach(c => {
       if (c.isLetter && c.num === newNum) filledCells.add(c.index)
     })
-    lives.value--
+    score.value -= HINT_COST
     if (checkWin()) {
       const bonus = lives.value * 20
       score.value += bonus
@@ -273,7 +275,7 @@ export function useGame() {
     currentQuote, cells, filledCells, hintNumbers,
     selectedCell, selectedNum, wrongGuesses,
     totalLetterCells, filledCount, progress, knownMappings, letterStates,
-    canUseExtraHint,
+    canUseExtraHint, HINT_COST,
     start, restart, nextStage,
     selectCellAt, guess, useExtraHint, getWords,
   }
