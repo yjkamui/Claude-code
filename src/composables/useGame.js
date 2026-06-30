@@ -102,7 +102,7 @@ export function useGame() {
 
   function selectHints(uniqueLetters) {
     hintNumbers.clear()
-    const count = uniqueLetters.length <= 8 ? 4 : 5
+    const count = 3
     const shuffled = [...uniqueLetters].sort(() => Math.random() - 0.5)
     shuffled.slice(0, Math.min(count, shuffled.length)).forEach(letter => {
       hintNumbers.add(letterToNumber.value[letter])
@@ -130,8 +130,9 @@ export function useGame() {
     const uniqueLetters = createCipher(text)
     buildCells(text)
     selectHints(uniqueLetters)
-    cells.value.forEach(c => {
-      if (c.isLetter && hintNumbers.has(c.num)) filledCells.add(c.index)
+    hintNumbers.forEach(num => {
+      const cell = cells.value.find(c => c.isLetter && c.num === num)
+      if (cell) filledCells.add(cell.index)
     })
     selectFirstUnfilled()
     screen.value = 'playing'
