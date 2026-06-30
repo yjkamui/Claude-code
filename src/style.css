@@ -13,8 +13,8 @@ html {
 
 body {
   font-family: 'Courier New', monospace;
-  background: #0a0a1a;
-  color: #e0e0e0;
+  background: #f0f2f5;
+  color: #1a1a2e;
   height: 100%;
   height: 100dvh;
   display: flex;
@@ -46,13 +46,12 @@ header {
 
 header h1 {
   font-size: 1.4rem;
-  color: #00ff88;
-  text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+  color: #0077cc;
   letter-spacing: 4px;
 }
 
 header p {
-  color: #888;
+  color: #666;
   margin-top: 4px;
   font-size: 0.7rem;
 }
@@ -63,8 +62,8 @@ header p {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: #111128;
-  border: 1px solid #222244;
+  background: #ffffff;
+  border: 1px solid #d0d8e8;
   border-radius: 8px;
   margin-bottom: 8px;
   flex-shrink: 0;
@@ -72,14 +71,14 @@ header p {
 
 .lives { font-size: 1.2rem; letter-spacing: 4px; }
 .lives .lost { opacity: 0.2; }
-.stage-info { color: #00ff88; font-weight: bold; font-size: 0.85rem; }
-.score-info { color: #ffaa00; font-size: 0.85rem; }
+.stage-info { color: #0077cc; font-weight: bold; font-size: 0.85rem; }
+.score-info { color: #cc7700; font-size: 0.85rem; }
 
 /* Progress */
 .progress-bar {
   width: 100%;
   height: 3px;
-  background: #1a1a3a;
+  background: #d0d8e8;
   border-radius: 2px;
   margin-bottom: 8px;
   overflow: hidden;
@@ -88,15 +87,15 @@ header p {
 
 .progress-fill {
   height: 100%;
-  background: #00ff88;
+  background: #0077cc;
   border-radius: 2px;
   transition: width 0.4s ease;
 }
 
 /* Puzzle */
 .puzzle-area {
-  background: #0d0d24;
-  border: 1px solid #1a1a3a;
+  background: #ffffff;
+  border: 1px solid #d0d8e8;
   border-radius: 10px;
   padding: 12px;
   margin-bottom: 8px;
@@ -123,7 +122,7 @@ header p {
   position: relative;
 }
 
-.puzzle-char .number { font-size: 0.6rem; color: #99aacc; height: 14px; }
+.puzzle-char .number { font-size: 0.6rem; color: #5577aa; height: 14px; }
 
 .puzzle-char .letter-box {
   width: 24px;
@@ -133,28 +132,29 @@ header p {
   justify-content: center;
   font-size: 1rem;
   font-weight: bold;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid #bbc8dd;
   text-transform: uppercase;
   transition: all 0.2s;
+  color: #1a1a2e;
 }
 
-.puzzle-char.revealed .letter-box { color: #00ff88; border-bottom-color: #00ff88; }
+.puzzle-char.revealed .letter-box { color: #0077cc; border-bottom-color: #0077cc; }
 .puzzle-char.selected .letter-box {
-  border-bottom-color: #00aaff;
-  background: rgba(0, 170, 255, 0.1);
-  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
+  border-bottom-color: #ee6600;
+  background: rgba(238, 102, 0, 0.08);
+  box-shadow: 0 0 8px rgba(238, 102, 0, 0.15);
 }
 .puzzle-char.same-number .letter-box {
-  border-bottom-color: rgba(0, 170, 255, 0.4);
-  background: rgba(0, 170, 255, 0.05);
+  border-bottom-color: rgba(238, 102, 0, 0.35);
+  background: rgba(238, 102, 0, 0.04);
 }
-.puzzle-char.punctuation .letter-box { border-bottom: none; color: #888; }
+.puzzle-char.punctuation .letter-box { border-bottom: none; color: #999; }
 
 .word-group { display: inline-flex; gap: 1px; }
 
 .author-line {
   text-align: right;
-  color: #555;
+  color: #888;
   font-style: italic;
   margin-top: 10px;
   font-size: 0.75rem;
@@ -162,8 +162,8 @@ header p {
 
 /* Hints */
 .hint-section {
-  background: #111128;
-  border: 1px solid #222244;
+  background: #ffffff;
+  border: 1px solid #d0d8e8;
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 8px;
@@ -171,13 +171,13 @@ header p {
 }
 
 .hint-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.hint-section h3 { color: #ffaa00; font-size: 0.65rem; letter-spacing: 2px; }
+.hint-section h3 { color: #cc7700; font-size: 0.65rem; letter-spacing: 2px; }
 
 .extra-hint-btn {
   padding: 3px 10px;
-  border: 1px solid #ffaa00;
+  border: 1px solid #cc7700;
   background: transparent;
-  color: #ffaa00;
+  color: #cc7700;
   font-size: 0.65rem;
   font-family: 'Courier New', monospace;
   font-weight: bold;
@@ -187,27 +187,27 @@ header p {
   transition: background 0.15s, color 0.15s;
   min-height: 28px;
 }
-.extra-hint-btn:active { background: #ffaa00; color: #0a0a1a; }
-.extra-hint-btn:disabled { border-color: #444; color: #444; cursor: not-allowed; }
+.extra-hint-btn:active { background: #cc7700; color: #ffffff; }
+.extra-hint-btn:disabled { border-color: #bbb; color: #bbb; cursor: not-allowed; }
 
 .hint-pairs { display: flex; flex-wrap: wrap; gap: 6px; }
-.hint-pair { background: #1a1a3a; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
-.hint-pair .hint-num { color: #888; }
-.hint-pair .hint-arrow { color: #555; margin: 0 4px; }
+.hint-pair { background: #eef2f8; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #d0d8e8; }
+.hint-pair .hint-num { color: #5577aa; }
+.hint-pair .hint-arrow { color: #aaa; margin: 0 4px; }
 .hint-pair .hint-letter { font-weight: bold; text-transform: uppercase; }
 
 /* Keyboard */
 .input-section {
-  background: #111128;
-  border: 1px solid #222244;
+  background: #ffffff;
+  border: 1px solid #d0d8e8;
   border-radius: 8px 8px 0 0;
   padding: 10px;
   padding-bottom: calc(10px + env(safe-area-inset-bottom));
   flex-shrink: 0;
 }
 
-.input-prompt { color: #aaa; margin-bottom: 8px; font-size: 0.8rem; text-align: center; }
-.input-prompt .target-number { color: #00aaff; font-weight: bold; font-size: 1.1rem; }
+.input-prompt { color: #555; margin-bottom: 8px; font-size: 0.8rem; text-align: center; }
+.input-prompt .target-number { color: #ee6600; font-weight: bold; font-size: 1.1rem; }
 
 .keyboard {
   display: grid;
@@ -219,9 +219,9 @@ header p {
 
 .key-btn {
   aspect-ratio: 1;
-  border: 1px solid #333;
-  background: #1a1a2e;
-  color: #e0e0e0;
+  border: 1px solid #bbc8dd;
+  background: #eef2f8;
+  color: #1a1a2e;
   font-size: 0.95rem;
   font-family: 'Courier New', monospace;
   font-weight: bold;
@@ -235,10 +235,10 @@ header p {
   min-height: 38px;
 }
 
-.key-btn:active { background: #303060; transform: scale(0.92); }
-.key-btn.used-wrong { background: #220000; border-color: #ff4444; color: #ff4444; opacity: 0.5; }
-.key-btn.key-known { border-color: #00ff88; color: #00ff88; }
-.key-btn.key-complete { background: #1a1a2e; border-color: #333; color: #444; opacity: 0.4; }
+.key-btn:active { background: #d0d8ee; transform: scale(0.92); }
+.key-btn.used-wrong { background: #fff0f0; border-color: #ee3333; color: #ee3333; opacity: 0.6; }
+.key-btn.key-known { border-color: #0077cc; color: #0077cc; background: #e8f0fb; }
+.key-btn.key-complete { background: #eef2f8; border-color: #d0d8e8; color: #bbb; opacity: 0.5; }
 .key-btn:disabled { cursor: not-allowed; }
 
 /* Modals */
@@ -247,7 +247,7 @@ header p {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 100;
   justify-content: center;
   align-items: center;
@@ -257,8 +257,8 @@ header p {
 .overlay.active { display: flex; }
 
 .modal {
-  background: #111128;
-  border: 1px solid #222244;
+  background: #ffffff;
+  border: 1px solid #d0d8e8;
   border-radius: 16px;
   padding: 28px 24px;
   text-align: center;
@@ -268,16 +268,16 @@ header p {
   overflow-y: auto;
 }
 
-.modal h2 { font-size: 1.5rem; margin-bottom: 10px; }
-.modal .quote-reveal { color: #aaa; font-style: italic; margin: 12px 0; line-height: 1.6; font-size: 0.9rem; }
-.modal .quote-author { color: #ffaa00; margin-bottom: 15px; font-size: 0.85rem; }
-.modal .stats { color: #888; margin-bottom: 20px; font-size: 0.8rem; }
+.modal h2 { font-size: 1.5rem; margin-bottom: 10px; color: #1a1a2e; }
+.modal .quote-reveal { color: #555; font-style: italic; margin: 12px 0; line-height: 1.6; font-size: 0.9rem; }
+.modal .quote-author { color: #cc7700; margin-bottom: 15px; font-size: 0.85rem; }
+.modal .stats { color: #777; margin-bottom: 20px; font-size: 0.8rem; }
 
 .modal-btn {
   padding: 14px 40px;
-  border: 1px solid #00ff88;
+  border: 1px solid #0077cc;
   background: transparent;
-  color: #00ff88;
+  color: #0077cc;
   font-size: 1.1rem;
   font-family: 'Courier New', monospace;
   cursor: pointer;
@@ -286,14 +286,14 @@ header p {
   min-height: 48px;
 }
 
-.modal-btn:active { background: #00ff88; color: #0a0a1a; }
+.modal-btn:active { background: #0077cc; color: #ffffff; }
 
-.success-color { color: #00ff88; }
-.fail-color { color: #ff4444; }
+.success-color { color: #0077cc; }
+.fail-color { color: #ee3333; }
 
 .rules {
   text-align: left;
-  color: #aaa;
+  color: #555;
   line-height: 1.7;
   margin-bottom: 20px;
   font-size: 0.8rem;
